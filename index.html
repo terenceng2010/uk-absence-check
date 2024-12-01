@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UK Absence Check</title>
+</head>
+<body>
+    <h3>UK Absence Check</h3>
+    <form>
+    Input Visa Start Date:
+    <input type="date" class="visaStartDate" value="2021-01-01">
+    <br><br>
+    Input a list of date you are absence:
+    <ol class="absence-period-list">
+        <li class="absence-period">
+            Start Date: <input type="date" class="startDate">
+            End Date: <input type="date" class="endDate">
+        </li>
+        <li class="absence-period">
+            Start Date: <input type="date" class="startDate">
+            End Date: <input type="date" class="endDate">
+        </li>      
+        <li class="absence-period">
+            Start Date: <input type="date" class="startDate">
+            End Date: <input type="date" class="endDate">
+        </li>      
+        <li class="absence-period">
+            Start Date: <input type="date" class="startDate">
+            End Date: <input type="date" class="endDate">
+        </li>      
+        <li class="absence-period">
+            Start Date: <input type="date" class="startDate">
+            End Date: <input type="date" class="endDate">
+        </li>      
+        <li class="absence-period">
+            Start Date: <input type="date" class="startDate">
+            End Date: <input type="date" class="endDate">
+        </li>   
+        <li class="absence-period">
+            Start Date: <input type="date" class="startDate">
+            End Date: <input type="date" class="endDate">
+        </li>   
+        <li class="absence-period">
+            Start Date: <input type="date" class="startDate">
+            End Date: <input type="date" class="endDate">
+        </li>   
+        <li class="absence-period">
+            Start Date: <input type="date" class="startDate">
+            End Date: <input type="date" class="endDate">
+        </li>   
+        <li class="absence-period">
+            Start Date: <input type="date" class="startDate">
+            End Date: <input type="date" class="endDate">
+        </li>                                                                                    
+    </ol>
+
+    <input type="button" onclick="checkAbsenceCriteriaOnClick()" value="Check" class="check-button">
+    <input type="reset">
+    <p class="result">
+
+    </p>
+    <details>
+        <summary>Indefinite leave to remain (ILR) - Eligibility</summary>
+        <p>
+            You can apply for settlement if you have a BNO visa and you’ve spent 5 continuous years in the UK.<br><br>
+            The earliest you can apply is 28 days before you’ve been in the UK for 5 years.<br><br>
+            In most cases you must have spent no more than 180 days outside the UK in any 12 month period (180 days).
+        </p>
+    </details>
+    <details>
+        <summary>UK Citizenship - Eligibility</summary>
+        <p>
+            You can apply for citizenship if you’ve lived in the UK for 5 years and have had one of the following for 12 months<br><br>
+            indefinite leave to remain in the UK<br><br>
+            You should not have:<br>
+            - spent more than 450 days outside the UK during the 5 years before your application<br>
+            - spent more than 90 days outside the UK in the last 12 months
+        </p>
+    </details>
+
+</body>
+<script src="main.js"></script>
+</html>
