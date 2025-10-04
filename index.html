@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UK Absence Check</title>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
 </head>
 <body>
     <h3>UK Absence Check</h3>
@@ -11,7 +12,25 @@
     Input Visa Start Date:
     <input type="date" class="visaStartDate" value="2021-01-01">
     <br><br>
+    Input Citizenship Application Date (for citizenship eligibility check):
+    <input type="date" class="citizenshipApplicationDate" value="2026-01-01">
+    <br><br>
     Input a list of date you are absence:
+    <br><br>
+    <label>
+        <strong>Option 1: Copy & Paste from Google Sheets</strong><br>
+        Paste date ranges in the format: "StartDate EndDate Location" (one per line)<br>
+        <textarea class="paste-input" placeholder="Paste your date ranges here, e.g.:
+2023-Apr-5    2023-Apr-22    Hong Kong
+2023-Jun-15    2023-Jun-20    Dublin" rows="8" cols="80"></textarea><br>
+        <button type="button" onclick="parsePastedData()">Parse Dates</button>
+        <button type="button" onclick="clearPastedData()">Clear</button>
+    </label>
+    <br><br>
+    <strong>Option 2: Manual Input</strong><br>
+    <button type="button" onclick="addAbsencePeriod()">+ Add Entry</button>
+    <button type="button" onclick="removeLastAbsencePeriod()">- Remove Last</button>
+    <br><br>
     <ol class="absence-period-list">
         <li class="absence-period">
             Start Date: <input type="date" class="startDate">
@@ -20,38 +39,47 @@
         <li class="absence-period">
             Start Date: <input type="date" class="startDate">
             End Date: <input type="date" class="endDate">
-        </li>      
+            <button type="button" onclick="removeAbsencePeriod(this)" style="margin-left: 10px;">Remove</button>
+        </li>
         <li class="absence-period">
             Start Date: <input type="date" class="startDate">
             End Date: <input type="date" class="endDate">
-        </li>      
+            <button type="button" onclick="removeAbsencePeriod(this)" style="margin-left: 10px;">Remove</button>
+        </li>
         <li class="absence-period">
             Start Date: <input type="date" class="startDate">
             End Date: <input type="date" class="endDate">
-        </li>      
+            <button type="button" onclick="removeAbsencePeriod(this)" style="margin-left: 10px;">Remove</button>
+        </li>
         <li class="absence-period">
             Start Date: <input type="date" class="startDate">
             End Date: <input type="date" class="endDate">
-        </li>      
+            <button type="button" onclick="removeAbsencePeriod(this)" style="margin-left: 10px;">Remove</button>
+        </li>
         <li class="absence-period">
             Start Date: <input type="date" class="startDate">
             End Date: <input type="date" class="endDate">
-        </li>   
+            <button type="button" onclick="removeAbsencePeriod(this)" style="margin-left: 10px;">Remove</button>
+        </li>
         <li class="absence-period">
             Start Date: <input type="date" class="startDate">
             End Date: <input type="date" class="endDate">
-        </li>   
+            <button type="button" onclick="removeAbsencePeriod(this)" style="margin-left: 10px;">Remove</button>
+        </li>
         <li class="absence-period">
             Start Date: <input type="date" class="startDate">
             End Date: <input type="date" class="endDate">
-        </li>   
+            <button type="button" onclick="removeAbsencePeriod(this)" style="margin-left: 10px;">Remove</button>
+        </li>
         <li class="absence-period">
             Start Date: <input type="date" class="startDate">
             End Date: <input type="date" class="endDate">
-        </li>   
+            <button type="button" onclick="removeAbsencePeriod(this)" style="margin-left: 10px;">Remove</button>
+        </li>
         <li class="absence-period">
             Start Date: <input type="date" class="startDate">
             End Date: <input type="date" class="endDate">
+            <button type="button" onclick="removeAbsencePeriod(this)" style="margin-left: 10px;">Remove</button>
         </li>                                                                                    
     </ol>
 
@@ -60,6 +88,46 @@
     <p class="result">
 
     </p>
+    <details>
+        <summary>📊 How Absence Days Are Calculated</summary>
+        <div style="background-color: #f5f5f5; padding: 15px; margin: 10px 0; border-left: 4px solid #007acc;">
+            <h4>🗓️ Official UK Immigration Day Counting Rules</h4>
+            <p><strong>According to UK Home Office guidance:</strong></p>
+            <ul>
+                <li>✅ <strong>Departure date COUNTS</strong> as an absence day</li>
+                <li>❌ <strong>Return date does NOT count</strong> as an absence day</li>
+                <li>⏰ Only <strong>whole days</strong> (24+ hours) are counted</li>
+                <li>🕐 Part-day absences (less than 24 hours) are ignored</li>
+            </ul>
+
+            <h4>📋 Example Calculation:</h4>
+            <div style="background-color: #e8f4f8; padding: 10px; margin: 10px 0; border-radius: 5px;">
+                <strong>Trip:</strong> Leave UK on April 5th, Return to UK on April 7th<br>
+                <strong>Absence Days:</strong> April 5th + April 6th = <span style="color: #d63384; font-weight: bold;">2 days</span><br>
+                <strong>Note:</strong> April 7th (return date) is NOT counted
+            </div>
+
+            <h4>🔍 This Tool's Implementation:</h4>
+            <p>This calculator follows the official UK immigration methodology. When you enter:</p>
+            <ul>
+                <li><strong>Start Date:</strong> Your departure date from the UK</li>
+                <li><strong>End Date:</strong> Your return date to the UK</li>
+            </ul>
+            <p>The tool automatically calculates absence days correctly by including the departure date but excluding the return date.</p>
+
+            <h4>📚 Official References:</h4>
+            <ul style="font-size: 0.9em;">
+                <li><a href="https://www.gov.uk/government/publications/indefinite-leave-to-remain-calculating-continuous-period-in-uk/indefinite-leave-to-remain-calculating-continuous-period-in-uk-accessible" target="_blank">UK Government: Calculating continuous period in UK (ILR)</a></li>
+                <li><a href="https://www.gov.uk/government/publications/continuous-residence/continuous-residence-guidance-accessible-version" target="_blank">UK Government: Continuous residence guidance</a></li>
+                <li><a href="https://assets.publishing.service.gov.uk/media/6887399cac2c821a74bbec00/Continuous+residence.pdf" target="_blank">Home Office: Continuous residence caseworker guidance (PDF)</a></li>
+                <li><a href="https://www.gov.uk/guidance/immigration-rules/immigration-rules-appendix-continuous-residence" target="_blank">Immigration Rules: Appendix Continuous Residence</a></li>
+            </ul>
+            <p style="font-size: 0.8em; color: #666; margin-top: 10px;">
+                <strong>⚠️ Disclaimer:</strong> This tool is for guidance only. For official immigration advice, consult a qualified immigration lawyer or the UK Home Office directly.
+            </p>
+        </div>
+    </details>
+
     <details>
         <summary>Indefinite leave to remain (ILR) - Eligibility</summary>
         <p>
@@ -71,12 +139,74 @@
     <details>
         <summary>UK Citizenship - Eligibility</summary>
         <p>
-            You can apply for citizenship if you’ve lived in the UK for 5 years and have had one of the following for 12 months<br><br>
+            You can apply for citizenship if you've lived in the UK for 5 years and have had one of the following for 12 months<br><br>
             indefinite leave to remain in the UK<br><br>
             You should not have:<br>
             - spent more than 450 days outside the UK during the 5 years before your application<br>
             - spent more than 90 days outside the UK in the last 12 months
         </p>
+    </details>
+
+    <details>
+        <summary>📋 Release Notes</summary>
+        <div style="background-color: #f8f9fa; padding: 15px; margin: 10px 0; border-left: 4px solid #28a745;">
+            <h4>Version 2.0 - Latest Updates</h4>
+            <ul>
+                <li>✅ <strong>Separate Citizenship Calculation:</strong> Added dedicated citizenship application date input for accurate 5-year period calculation</li>
+                <li>✅ <strong>Copy/Paste from Google Sheets:</strong> Support for pasting date ranges directly from spreadsheets</li>
+                <li>✅ <strong>Dynamic Entry Management:</strong> Add/remove absence periods as needed, auto-creates entries for large datasets</li>
+                <li>✅ <strong>Correct Day Counting:</strong> Fixed calculation to follow UK immigration rules (departure counts, return doesn't)</li>
+                <li>✅ <strong>Enhanced Results Display:</strong> Clear separation between ILR and citizenship results with color-coded pass/fail indicators</li>
+                <li>✅ <strong>Official Methodology Guide:</strong> Added comprehensive explanation of how absence days are calculated with official references</li>
+            </ul>
+
+            <h4>Version 1.0 - Initial Features</h4>
+            <ul>
+                <li>Basic absence period calculation for ILR eligibility</li>
+                <li>Manual date entry system</li>
+                <li>180-day rule checking for any 12-month period</li>
+            </ul>
+        </div>
+    </details>
+
+    <details>
+        <summary>⚠️ Important Disclaimer</summary>
+        <div style="background-color: #fff3cd; padding: 15px; margin: 10px 0; border-left: 4px solid #ffc107; border-radius: 5px;">
+            <h4>🚨 Legal Notice</h4>
+            <p><strong>This tool is for informational and guidance purposes only.</strong></p>
+
+            <h4>📋 What This Tool Does:</h4>
+            <ul>
+                <li>Provides calculations based on publicly available UK immigration guidance</li>
+                <li>Helps estimate absence day counts using official methodology</li>
+                <li>Offers preliminary assessment of ILR and citizenship eligibility</li>
+            </ul>
+
+            <h4>❌ What This Tool Does NOT Do:</h4>
+            <ul>
+                <li><strong>Replace professional legal advice</strong></li>
+                <li><strong>Guarantee application success</strong></li>
+                <li><strong>Account for exceptional circumstances</strong></li>
+                <li><strong>Consider complex immigration history</strong></li>
+                <li><strong>Provide official Home Office determinations</strong></li>
+            </ul>
+
+            <h4>🎯 Recommendations:</h4>
+            <ul>
+                <li><strong>Consult a qualified immigration lawyer</strong> before making any application</li>
+                <li><strong>Verify calculations</strong> with official Home Office guidance</li>
+                <li><strong>Consider your specific circumstances</strong> that may affect eligibility</li>
+                <li><strong>Keep detailed records</strong> of all travel and absence periods</li>
+            </ul>
+
+            <p style="margin-top: 15px; font-size: 0.9em; color: #856404;">
+                <strong>📞 For Official Advice:</strong> Contact the UK Home Office directly or consult with a qualified immigration solicitor. Immigration rules and requirements can change, and individual circumstances vary.
+            </p>
+
+            <p style="margin-top: 10px; font-size: 0.8em; color: #6c757d;">
+                <strong>Last Updated:</strong> January 2025 | <strong>Based on:</strong> UK Immigration Rules as of January 2025
+            </p>
+        </div>
     </details>
 
 </body>
