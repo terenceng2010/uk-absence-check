@@ -154,19 +154,19 @@ function checkAbsenceCriteriaOnClick(){
 }
 
 function enumerateDaysBetween(startDate, endDate) {
-    const start = new Date(startDate); // Convert to Date object
-    const end = new Date(endDate); // Convert to Date object
+    const start = dayjs(startDate);
+    const end = dayjs(endDate);
 
     const dates = [];
-    let current = new Date(start);
+    let current = start;
 
     // UK Immigration Rule: Departure date counts, return date does NOT count
-    while (current < end) {
-        dates.push(new Date(current)); // Add the current date to the array
-        current.setDate(current.getDate() + 1); // Increment the date by 1 day
+    while (current.isBefore(end)) {
+        dates.push(current.format('YYYY-MM-DD'));
+        current = current.add(1, 'day');
     }
 
-    return dates.map(date => date.toISOString().split("T")[0]);
+    return dates;
 }
 
 function parsePastedData() {
