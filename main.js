@@ -11,8 +11,10 @@ function checkAbsenceCriteria(absenceDates, visaStartDate, citizenshipApplicatio
     const absencesInILRPeriod = absences.filter(date => date >= ilrPeriodStart && date <= ilrPeriodEnd);
     const totalAbsencesInILRPeriod = absencesInILRPeriod.length;
 
-    // Check all rolling 12-month periods within ILR 5 years for 180-day rule
+    // Check all rolling 12-month periods within ILR 5 years for 180-day rule (CORE LOGIC to find the maxium absences in any 12-month window)
     let maxAbsencesInAny12Months = 0;
+    let maxWindowStart = null;
+    let maxWindowEnd = null;
     for (let i = 0; i < absencesInILRPeriod.length; i++) {
         const start = absencesInILRPeriod[i];
         const end = new Date(start);
@@ -22,7 +24,11 @@ function checkAbsenceCriteria(absenceDates, visaStartDate, citizenshipApplicatio
             date => date >= start && date < end
         ).length;
 
-        maxAbsencesInAny12Months = Math.max(maxAbsencesInAny12Months, absencesIn12Months);
+        if (absencesIn12Months > maxAbsencesInAny12Months) {
+            maxAbsencesInAny12Months = absencesIn12Months;
+            maxWindowStart = start;
+            maxWindowEnd = end;
+        }
         if (maxAbsencesInAny12Months > 180) break;
     }
 
@@ -53,6 +59,8 @@ function checkAbsenceCriteria(absenceDates, visaStartDate, citizenshipApplicatio
         ilrPeriodEnd: ilrPeriodEnd.toISOString().split("T")[0],
         totalAbsencesInILRPeriod,
         maxAbsencesInAny12Months,
+        maxWindowStart: maxWindowStart ? maxWindowStart.toISOString().split("T")[0] : null,
+        maxWindowEnd: maxWindowEnd ? maxWindowEnd.toISOString().split("T")[0] : null,
         criteriaMetILR,
 
         // Citizenship Results
@@ -124,11 +132,16 @@ function checkAbsenceCriteriaOnClick(){
     const result = checkAbsenceCriteria(absenceDates, visaStartDate, citizenshipApplicationDate);
 
     const resultDiv = document.querySelector('.result');
+    const maxWindowDisplay = result.maxWindowStart && result.maxWindowEnd
+        ? `Worst 12-month window: ${result.maxWindowStart} to ${result.maxWindowEnd}<br>`
+        : '';
+
     resultDiv.innerHTML = `
         <h4>📋 ILR (Indefinite Leave to Remain) Results</h4>
         <strong>Period:</strong> ${result.ilrPeriodStart} to ${result.ilrPeriodEnd}<br>
         <strong>Total absences in 5 years:</strong> ${result.totalAbsencesInILRPeriod} days<br>
         <strong>Maximum absences in any 12-month period:</strong> ${result.maxAbsencesInAny12Months} days<br>
+        ${maxWindowDisplay}
         <strong>Criteria met for ILR:</strong> <span style="color: ${result.criteriaMetILR ? 'green' : 'red'}; font-weight: bold;">${result.criteriaMetILR ? "✅ Yes" : "❌ No"}</span><br>
 
         <h4>🇬🇧 UK Citizenship Results</h4>
@@ -272,6 +285,25 @@ window.addEventListener('load', function() {
         // Small delay to let the form reset first, then clear additional fields
         setTimeout(clearAllFields, 10);
     });
+
+    // Auto-set citizenship application date to 6 years after visa start date
+    const visaStartDateInput = document.querySelector('.visaStartDate');
+    const citizenshipApplicationDateInput = document.querySelector('.citizenshipApplicationDate');
+
+    function updateCitizenshipDate() {
+        const visaStartDate = visaStartDateInput.value;
+        if (visaStartDate) {
+            const citizenshipDate = new Date(visaStartDate);
+            citizenshipDate.setFullYear(citizenshipDate.getFullYear() + 6);
+            citizenshipApplicationDateInput.value = citizenshipDate.toISOString().split('T')[0];
+        }
+    }
+
+    // Set initial value on page load
+    updateCitizenshipDate();
+
+    // Update citizenship date whenever visa start date changes
+    visaStartDateInput.addEventListener('change', updateCitizenshipDate);
 });
 
 function addAbsencePeriod() {
